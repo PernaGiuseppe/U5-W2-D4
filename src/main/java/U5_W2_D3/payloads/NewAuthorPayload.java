@@ -1,15 +1,25 @@
 package U5_W2_D3.payloads;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
-
 
 @AllArgsConstructor
 @ToString
 public class NewAuthorPayload {
+
+    @NotBlank(message = "Il nome è obbligatorio")
     private String name;
+
+    @NotBlank(message = "Il cognome è obbligatorio")
     private String surname;
+
+    @Email(message = "L'email deve essere valida")
+    @NotBlank(message = "L'email è obbligatoria")
     private String email;
+
+    @NotBlank(message = "La data di nascita è obbligatoria")
     private String dateOfBirth;
 
     public String getName() {

@@ -7,11 +7,15 @@ import U5_W2_D3.exceptions.NotFoundException;
 import U5_W2_D3.payloads.NewBlogPayload;
 import U5_W2_D3.repositories.AuthorRepository;
 import U5_W2_D3.repositories.BlogRepository;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 
 @Service
 public class BlogService {
@@ -21,6 +25,9 @@ public class BlogService {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @Autowired
+    private Cloudinary cloudinary;
 
     public Page<Blog> findAll(Pageable pageable) {
         return blogRepository.findAll(pageable);
@@ -53,7 +60,6 @@ public class BlogService {
 
     public Blog findByIdAndUpdate(Long blogId, NewBlogPayload payload) {
         Blog found = findById(blogId);
-
         Long authorId;
         try {
             authorId = Long.parseLong(payload.getAuthorId());
@@ -76,5 +82,16 @@ public class BlogService {
     public void findByIdAndDelete(Long blogId) {
         Blog found = findById(blogId);
         blogRepository.delete(found);
+    }
+
+    public Blog uploadCover(Long blogId, MultipartFile file) throws IOException {
+        Blog found = findById(blogId);
+
+        String url = (String) cloudinary.uploader()
+                .upload(file.getBytes(), ObjectUtils.emptyMap())
+                .get("url");
+
+        found.setCover(url);
+        return blogRepository.save(found);
     }
 }
